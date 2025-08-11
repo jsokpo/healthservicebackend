@@ -1,11 +1,12 @@
 {
   "name": "healthservicebackend",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "render-build": "npm install && npm run build",
     "prisma": "prisma"
   },
   "dependencies": {
