@@ -30,7 +30,7 @@ const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
         console.log('🟢 Connected to the database successfully');
         // Start Express server
         app_1.default.listen(PORT, () => {
-            console.log(`🚀 Server running on https://your-app-name.onrender.com (PORT: ${PORT})`);
+            console.log(`🚀 Server running on https://healthservicebackend.onrender.com (PORT: ${PORT})`);
         });
     }
     catch (error) {
