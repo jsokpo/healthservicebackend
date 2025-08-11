@@ -1,0 +1,289 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Appointment {
+  id                 String              @id @default(auto()) @map("_id") @db.ObjectId
+  patientId          String?             @db.ObjectId
+  patient            Patient?            @relation(fields: [patientId], references: [id])
+  doctorId           String?             @db.ObjectId
+  doctor             Doctor?             @relation(fields: [doctorId], references: [id])
+  trackingId         String?             @unique
+  firstName          String?
+  lastName           String?
+  email              String?
+  phone              String?
+  address            String?
+  description        String?
+  scheduleDate       String?
+  scheduleTime       String?
+  reasonForVisit     String?
+  status             String?             @default("pending")
+  paymentStatus      paymentStatus?      @default(unpaid)
+  prescriptionStatus prescriptionStatus? @default(notIssued)
+  isFollowUp         Boolean?            @default(false)
+  patientType        String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  prescription       Prescription[]
+  payment            Payment[]
+
+  @@map("Appointment")
+}
+
+model User {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  email     String      @unique
+  password  String
+  role      UserRole
+  createdAt DateTime    @default(now())
+  Blog      Blog[]
+  Favourite Favourite[]
+}
+
+model PasswordResetToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  token     String   @unique
+  expiresAt DateTime
+}
+
+model Blog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  image     String
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  doctorId  String?  @db.ObjectId
+  doctor    Doctor?  @relation(fields: [doctorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Doctor {
+  id                     String           @id @default(auto()) @map("_id") @db.ObjectId
+  firstName              String
+  lastName               String
+  email                  String           @unique
+  address                String?
+  img                    String?
+  phone                  String?
+  gender                 Gender?
+  dob                    String?
+  biography              String?
+  clinicName             String?
+  clinicAddress          String?
+  clinicImages           String?
+  city                   String?
+  state                  String?
+  country                String?
+  postalCode             String?
+  price                  String?
+  services               String?
+  specialization         String?
+  degree                 String?
+  college                String?
+  completionYear         String?
+  experience             String?
+  designation            String?
+  award                  String?
+  awardYear              String?
+  registration           String?
+  year                   String?
+  experienceHospitalName String?
+  expericenceStart       String?
+  expericenceEnd         String?
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  appointments           Appointment[]
+  prescription           Prescription[]
+  favourites             Favourite[]
+  DoctorTimeSlot         DoctorTimeSlot[]
+  blogs                  Blog[]
+  reviews                Review[]
+
+  @@map("Doctor")
+}
+
+model Favourite {
+  id        String   @id @default(uuid()) @map("_id")
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  itemId    String
+  itemType  String
+  createdAt DateTime @default(now())
+  Doctor    Doctor?  @relation(fields: [doctorId], references: [id])
+  doctorId  String?  @db.ObjectId
+  Patient   Patient? @relation(fields: [patientId], references: [id])
+  patientId String?  @db.ObjectId
+
+  @@map("Favourite")
+}
+
+model Medicine {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  prescriptionId String       @db.ObjectId
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  medicine       String?
+  dosage         String?
+  frequency      String?
+  duration       String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("Medicine")
+}
+
+model Patient {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  firstName    String
+  lastName     String
+  dateOfBirth  DateTime?
+  bloodGroup   String?
+  mobile       String?
+  city         String?
+  state        String?
+  zipCode      String?
+  gender       String?
+  country      String?
+  email        String         @unique
+  address      String?
+  img          String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  appointments Appointment[]
+  Reviews      Review[]
+  Prescription Prescription[]
+  favourites   Favourite[]
+
+  @@map("Patient")
+}
+
+model Prescription {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  doctorId      String      @db.ObjectId
+  doctor        Doctor      @relation(fields: [doctorId], references: [id])
+  patientId     String      @db.ObjectId
+  patient       Patient     @relation(fields: [patientId], references: [id])
+  appointmentId String      @db.ObjectId
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  followUpdate  String?
+  instruction   String?
+  isFullfilled  Boolean     @default(false)
+  isArchived    Boolean     @default(false)
+  daignosis     String?
+  disease       String
+  test          String?
+  medicines     Medicine[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("Prescription")
+}
+
+model Review {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  doctorId      String   @db.ObjectId
+  doctor        Doctor?  @relation(fields: [doctorId], references: [id])
+  patientId     String   @db.ObjectId
+  patient       Patient  @relation(fields: [patientId], references: [id])
+  description   String?
+  star          String?
+  isRecommended Boolean?
+  reply         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("Review")
+}
+
+model TimeSlot {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  doctorId  String   @db.ObjectId
+  day       String
+  startTime String
+  endTime   String
+  isBooked  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DoctorTimeSlot {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  doctorId       String        @db.ObjectId
+  doctor         Doctor        @relation(fields: [doctorId], references: [id])
+  day            Day?
+  timeSlot       ScheduleDay[]
+  weekDay        String?
+  maximumPatient Int?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@map("DoctorTimeSlot")
+}
+
+model ScheduleDay {
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  startTime        String
+  endTime          String
+  doctorTimeSlotId String?         @db.ObjectId
+  doctorTimeSlot   DoctorTimeSlot? @relation(fields: [doctorTimeSlotId], references: [id])
+}
+
+model Payment {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  appointmentId String      @db.ObjectId
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  paymentMethod String
+  paymentType   String
+  DoctorFee     Int
+  bookingFee    Int
+  vat           Int?
+  totalAmount   Int
+
+  @@map("Payment")
+}
+
+enum UserRole {
+  admin
+  patient
+  doctor
+}
+
+enum Day {
+  saturday
+  sunday
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+}
+
+enum Gender {
+  male
+  female
+}
+
+enum prescriptionStatus {
+  issued
+  notIssued
+}
+
+enum paymentStatus {
+  paid
+  unpaid
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
